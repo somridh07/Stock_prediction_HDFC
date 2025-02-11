@@ -1,1 +1,8 @@
+Flowchart Steps:
+1️⃣ Upload Data to S3 → Store HDFC.csv in an Amazon S3 bucket
+2️⃣ AWS Glue / Lambda → Preprocess & clean the data
+3️⃣ Amazon RDS / DynamoDB → Store transformed data for further use
+4️⃣ AWS SageMaker → Train & deploy ML models for stock prediction
+5️⃣ Amazon QuickSight → Visualize predictions
+
 
