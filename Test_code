@@ -1,0 +1,42 @@
+def get_stock_data(file_path):
+    try:
+        df = pd.read_csv(file_path)
+        print("Dataset loaded successfully!")
+        print("Columns in dataset:", df.columns)
+
+        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+        df.set_index('Date', inplace=True)
+
+        if 'Close' not in df.columns:
+            raise ValueError("Column 'Close' not found in the dataset. Available columns: ", df.columns)
+
+        print("Final dataset preview:\n", df.head())
+        return df[['Close']]
+    except Exception as e:
+        print("Error loading dataset:", e)
+        return None  # Return None if loading fails
+
+# Preprocessing pipeline
+class StockDataPreprocessor:
+    def __init__(self, seq_length=60):
+        self.seq_length = seq_length
+        self.scaler = MinMaxScaler()
+
+    def transform(self, data):
+        if data is None:
+            raise ValueError("Input data is None. Check dataset loading.")
+        scaled_data = self.scaler.fit_transform(data.reshape(-1, 1))
+        sequences, targets = [], []
+        for i in range(len(scaled_data) - self.seq_length):
+            sequences.append(scaled_data[i:i + self.seq_length])
+            targets.append(scaled_data[i + self.seq_length])
+        return np.array(sequences), np.array(targets)
+def train_model(model, train_loader, criterion, optimizer, epochs=10):
+    for epoch in range(epochs):
+        for seqs, labels in train_loader:
+            optimizer.zero_grad()
+            output = model(seqs.float())
+            loss = criterion(output, labels.float())
+            loss.backward()
+            optimizer.step()
+        print(f'Epoch {epoch+1}/{epochs}, Loss: {loss.item():.4f}')
